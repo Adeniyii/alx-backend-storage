@@ -6,7 +6,11 @@ DROP PROCEDURE IF EXISTS AddBonus;
 
 DELIMITER $$
 
-CREATE PROCEDURE IF NOT EXISTS AddBonus(user_id, project_name, score)
+CREATE PROCEDURE AddBonus (
+	IN user_id INT,
+	IN project_name VARCHAR(255),
+	IN score INT
+)
 BEGIN
 	DECLARE productID INT;
 
@@ -15,10 +19,10 @@ BEGIN
 	FROM projects
 	WHERE name = project_name;
 
-	IF productID = NULL THEN
+	IF productID IS NULL THEN
 		INSERT INTO projects (name)
 		VALUES (project_name);
-		SET productID = LAST_INSERT_ID()
+		SET productID = LAST_INSERT_ID();
 	END IF;
 
 	INSERT INTO corrections (user_id, project_id, score)
