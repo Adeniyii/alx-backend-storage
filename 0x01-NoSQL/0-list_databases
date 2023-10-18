@@ -1,2 +1,2 @@
 // show mongo databases
-show db
+show dbs
