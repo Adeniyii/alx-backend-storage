@@ -6,7 +6,7 @@ from pymongo import MongoClient
 def process_logs(mongo_collection):
     """provides some stats about Nginx logs"""
     print("{} logs".format(mongo_collection.count_documents({})))
-    print("Methods")
+    print("Methods:")
 
     methods = {"GET": 0, "POST": 0, "PUT": 0, "PATCH": 0, "DELETE": 0}
     agg = mongo_collection.aggregate([{'$group': {'_id': '$method', 'count': {'$sum': 1}}}])
