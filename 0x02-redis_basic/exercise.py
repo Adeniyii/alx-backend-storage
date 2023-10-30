@@ -19,11 +19,27 @@ class Cache():
 
         return key
 
-    def get(self, key: str, fn: Callable[[Union[bytes, None]], Any]):
+    def get(
+        self, key: str, fn: Callable
+    ) -> Union[bytes, int, str, float, None]:
         """Get and convert value from redis db."""
         v = self._redis.get(key)
         if fn is not None:
             return fn(v)
+        return v
+
+    def get_str(self, key: str) -> str:
+        '''Retrieves string value from Redis db.
+        '''
+        v = self.get(key, str)
+        assert isinstance(v, str)
+        return v
+
+    def get_int(self, key: str) -> int:
+        '''Retrieves an integer value from a Redis data storage.
+        '''
+        v = self.get(key, int)
+        assert isinstance(v, int)
         return v
 
 
