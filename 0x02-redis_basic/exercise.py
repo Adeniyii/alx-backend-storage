@@ -24,8 +24,6 @@ class Cache():
         self, key: str, fn: Optional[Callable] = None
     ) -> Union[bytes, int, str, float, None]:
         """Get and convert value from redis db."""
-        assert isinstance(fn, FunctionType)
-
         v = self._redis.get(key)
         if fn is not None:
             return fn(v)
