@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """exercise.py module defines a cache class and inits redis."""
-from typing import Any, Callable, Union
+from types import FunctionType
+from typing import Any, Callable, Optional, Union
 import redis
 import uuid
 
@@ -20,9 +21,11 @@ class Cache():
         return key
 
     def get(
-        self, key: str, fn: Callable
+        self, key: str, fn: Optional[Callable] = None
     ) -> Union[bytes, int, str, float, None]:
         """Get and convert value from redis db."""
+        assert isinstance(fn, FunctionType)
+
         v = self._redis.get(key)
         if fn is not None:
             return fn(v)
