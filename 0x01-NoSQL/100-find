@@ -1,2 +1,0 @@
-// fetch records starting with `Holberton`.
-db.school.find({name: {$regex: /^Holberton/}})

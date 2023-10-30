@@ -1,2 +1,0 @@
-// fetch all documents that match search param.
-db.school.find({name: "Holberton school"})

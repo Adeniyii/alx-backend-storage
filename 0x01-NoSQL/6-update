@@ -1,2 +1,0 @@
-// update documents in school collection matching search param
-db.school.update({name: {$eq: "Holberton school"}}, {$set: {"address": "972 Mission street"}}, {multi: true})

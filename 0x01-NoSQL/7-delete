@@ -1,2 +1,0 @@
-// delete all records matching search param.
-db.school.deleteMany({name: "Holberton school"})
