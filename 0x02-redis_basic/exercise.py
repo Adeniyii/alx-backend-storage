@@ -6,15 +6,15 @@ import uuid
 from functools import wraps
 
 
-def count_calls(func: Callable) -> Callable:
+def count_calls(method: Callable) -> Callable:
     """count_calls decorator to register no of calls to decorated func."""
 
-    @wraps(func)
+    @wraps(method)
     def inner(self, data):
-        key = func.__qualname__
+        key = method.__qualname__
         vv = self.get_int(key)
         self._redis.set(key, vv + 1)
-        v = func(self, data)
+        v = method(self, data)
         return v
 
     return inner
