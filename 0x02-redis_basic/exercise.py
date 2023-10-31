@@ -1,9 +1,23 @@
 #!/usr/bin/env python3
 """exercise.py module defines a cache class and inits redis."""
-from types import FunctionType
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional, Union
 import redis
 import uuid
+from functools import wraps
+
+
+def count_calls(func: Callable) -> Callable:
+    """count_calls decorator to register no of calls to decorated func."""
+
+    @wraps(func)
+    def inner(self, data):
+        key = func.__qualname__
+        vv = self.get_int(key)
+        self._redis.set(key, vv)
+        v = func(self, data)
+        return v
+
+    return inner
 
 
 class Cache():
@@ -13,6 +27,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[int, str, bytes, float]) -> str:
         """Store value into redis database."""
         key: str = str(uuid.uuid4())
@@ -39,7 +54,7 @@ class Cache():
     def get_int(self, key: str) -> int:
         '''Retrieves an integer value from a Redis data storage.
         '''
-        v = self.get(key, int)
+        v = self.get(key, lambda x: int(x) if x else 0)
         assert isinstance(v, int)
         return v
 
@@ -47,12 +62,9 @@ class Cache():
 if __name__ == "__main__":
     cache = Cache()
 
-    TEST_CASES = {
-        b"foo": None,
-        123: int,
-        "bar": lambda d: d.decode("utf-8")
-    }
+    cache.store(b"first")
+    print(cache.get(cache.store.__qualname__))
 
-    for value, fn in TEST_CASES.items():
-        key = cache.store(value)
-        assert cache.get(key, fn=fn) == value
+    cache.store(b"second")
+    cache.store(b"third")
+    print(cache.get(cache.store.__qualname__))
