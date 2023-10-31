@@ -13,7 +13,7 @@ def count_calls(func: Callable) -> Callable:
     def inner(self, data):
         key = func.__qualname__
         vv = self.get_int(key)
-        self._redis.set(key, vv)
+        self._redis.set(key, vv + 1)
         v = func(self, data)
         return v
 
