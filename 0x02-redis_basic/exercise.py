@@ -12,8 +12,7 @@ def count_calls(method: Callable) -> Callable:
     @wraps(method)
     def inner(self, data):
         key = method.__qualname__
-        vv = self.get_int(key)
-        self._redis.set(key, vv + 1)
+        self._redis.incr(key)
         v = method(self, data)
         return v
 
