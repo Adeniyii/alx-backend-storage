@@ -38,6 +38,34 @@ def call_history(method: Callable) -> Callable:
     return inner
 
 
+def replay(method: Callable):
+    """"""
+    r = redis.Redis()
+    base_key = method.__qualname__
+    input_key = base_key + ":inputs"
+    output_key = base_key + ":outputs"
+    call_count = r.get(base_key)
+
+    try:
+        assert isinstance(call_count, bytes)
+        call_count = call_count.decode("utf-8")
+    except Exception:
+        call_count = 0
+
+    inputs = r.lrange(input_key, 0, -1)
+    outputs = r.lrange(output_key, 0, -1)
+
+    print("{} was called {} times".format(base_key, call_count))
+
+    zipped = zip([i.decode("utf-8") for i in inputs],
+                 [o.decode("utf-8") for o in outputs])
+    for tup in list(zipped):
+        t1 = tup[0]
+        v1 = tup[1]
+
+        print("{}(*{}) -> {}".format(base_key, t1, v1))
+
+
 class Cache():
     """Cache class."""
 
@@ -95,3 +123,4 @@ if __name__ == "__main__":
 
     print("inputs: {}".format(inputs))
     print("outputs: {}".format(outputs))
+    replay(cache.store)
