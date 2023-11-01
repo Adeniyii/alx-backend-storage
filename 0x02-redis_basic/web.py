@@ -1,35 +1,33 @@
 #!/usr/bin/env python3
-"""Implements simple caching for http requests."""
-from functools import wraps
-from typing import Callable
+"""module for request caching.
+"""
 import redis
 import requests
+from functools import wraps
+from typing import Callable
 
 
-r = redis.Redis()
+redis_store = redis.Redis()
 
 
 def cache_req(method: Callable) -> Callable:
-    """caching decorator."""
+    """Caches the output of fetched data."""
 
     @wraps(method)
-    def inner(url: str) -> str:
-        """inner function"""
-        c_key = "result:{}".format(url)
-        r.incr(f"count:{url}")
-        cached_html = r.get(c_key)
-        if cached_html:
-            return cached_html.decode('utf-8')
-        html = method(url)
-        r.set(c_key, ex=10, value=html)
-        return html
+    def inner(url) -> str:
+        """The wrapper function for caching the output."""
+        redis_store.incr(f"count:{url}")
+        result = redis_store.get(f"result:{url}")
+        if result:
+            return result.decode("utf-8")
+        result = method(url)
+        redis_store.set(f"result:{url}", result, ex=10)
+        return result
 
     return inner
 
 
 @cache_req
 def get_page(url: str) -> str:
-    """ Inside get_page track how many times a particular URL was accessed
-    in the key "count:{url}" and cache the result with an expiration time
-    of 10 seconds. """
+    """Returns the content of a URL after caching the response."""
     return requests.get(url).text
