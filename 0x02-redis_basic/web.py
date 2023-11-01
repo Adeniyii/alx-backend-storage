@@ -16,8 +16,12 @@ def cache_req(method: Callable) -> Callable:
         r.flushdb()
 
         res = method(*args)
+        url = args[0]
+        key = "count:{}".format(url)
 
-        r.set(args[0], res)
+        r.incr(key, res)
+        r.expire(key, 10)
+
         return res
 
     return inner
