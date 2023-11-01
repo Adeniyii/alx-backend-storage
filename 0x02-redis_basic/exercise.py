@@ -55,7 +55,7 @@ def replay(method: Callable):
     inputs = r.lrange(input_key, 0, -1)
     outputs = r.lrange(output_key, 0, -1)
 
-    print("{} was called {} times".format(base_key, call_count))
+    print("{} was called {} times:".format(base_key, call_count))
 
     zipped = zip([i.decode("utf-8") for i in inputs],
                  [o.decode("utf-8") for o in outputs])
