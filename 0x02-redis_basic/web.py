@@ -15,18 +15,14 @@ def cache_req(method: Callable) -> Callable:
     @wraps(method)
     def inner(url: str) -> str:
         """inner function"""
-        key = "result:{}".format(url)
 
-        result = r.get(key)
-        if result:
-            return result.decode("utf-8")
-
-        res = method(url)
-        r.set(key, res)
-        r.incr("count:{}".format(url))
-        r.expire(key, 10)
-
-        return res
+        r.incr(f"count:{url}")
+        cached_html = r.get(url)
+        if cached_html:
+            return cached_html.decode('utf-8')
+        html = method(url)
+        r.setex(url, 10, html)
+        return html
 
     return inner
 
@@ -36,5 +32,4 @@ def get_page(url: str) -> str:
     """ Inside get_page track how many times a particular URL was accessed
     in the key "count:{url}" and cache the result with an expiration time
     of 10 seconds. """
-    r = requests.get(url)
-    return r.text
+    return requests.get(url).text
