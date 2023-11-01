@@ -15,13 +15,12 @@ def cache_req(method: Callable) -> Callable:
     @wraps(method)
     def inner(url: str) -> str:
         """inner function"""
-
+        c_key = "result:{}".format(url)
         r.incr(f"count:{url}")
-        cached_html = r.get(url)
+        cached_html = r.get(c_key)
         if cached_html:
             return cached_html.decode('utf-8')
         html = method(url)
-        c_key = "result:{}".format(url)
         r.set(c_key, ex=10, value=html)
         return html
 
