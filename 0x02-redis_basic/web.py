@@ -6,24 +6,24 @@ import redis
 import requests
 
 
+r = redis.Redis()
+
+
 def cache_req(method: Callable) -> Callable:
     """caching decorator."""
-    r = redis.Redis()
-    r.flushdb()
 
     @wraps(method)
-    def inner(*args: str):
+    def inner(url: str) -> str:
         """inner function"""
-        url = args[0]
-        key = "count:{}".format(url)
+        key = "result:{}".format(url)
 
-        result = r.get("result:{}".format(url))
+        result = r.get(key)
         if result:
             return result.decode("utf-8")
 
-        res = method(*args)
-        r.set("result:{}".format(key), res)
-        r.incr(key)
+        res = method(url)
+        r.set(key, res)
+        r.incr("count:{}".format(url))
         r.expire(key, 10)
 
         return res
