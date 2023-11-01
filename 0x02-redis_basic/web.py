@@ -14,10 +14,15 @@ def cache_req(method: Callable) -> Callable:
     @wraps(method)
     def inner(*args: str):
         """inner function"""
-        res = method(*args)
         url = args[0]
         key = "count:{}".format(url)
 
+        result = r.get("result:{}".format(url))
+        if result:
+            return result.decode("utf-8")
+
+        res = method(*args)
+        r.set("result:{}".format(key), res)
         r.incr(key)
         r.expire(key, 10)
 
