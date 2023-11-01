@@ -31,6 +31,7 @@ def cache_req(method: Callable) -> Callable:
     return inner
 
 
+@cache_req
 def get_page(url: str) -> str:
     """ Inside get_page track how many times a particular URL was accessed
     in the key "count:{url}" and cache the result with an expiration time
