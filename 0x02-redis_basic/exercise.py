@@ -39,7 +39,7 @@ def call_history(method: Callable) -> Callable:
 
 
 def replay(method: Callable):
-    """"""
+    """replay cache history"""
     r = redis.Redis()
     base_key = method.__qualname__
     input_key = base_key + ":inputs"
