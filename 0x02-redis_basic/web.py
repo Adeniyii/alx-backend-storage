@@ -21,7 +21,8 @@ def cache_req(method: Callable) -> Callable:
         if cached_html:
             return cached_html.decode('utf-8')
         html = method(url)
-        r.setex(url, 10, html)
+        c_key = "result:{}".format(url)
+        r.set(c_key, ex=10, value=html)
         return html
 
     return inner
