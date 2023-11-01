@@ -31,8 +31,6 @@ def get_page(url: str) -> str:
     """ Inside get_page track how many times a particular URL was accessed
     in the key "count:{url}" and cache the result with an expiration time
     of 10 seconds. """
-    url = "http://slowwly.robertomurray.co.uk"
-
     r = requests.get(url)
     try:
         r.raise_for_status()
