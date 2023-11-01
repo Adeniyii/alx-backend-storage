@@ -19,6 +19,25 @@ def count_calls(method: Callable) -> Callable:
     return inner
 
 
+def call_history(method: Callable) -> Callable:
+    """memoize function calls in redis db."""
+
+    @wraps(method)
+    def inner(self, *args):
+        """inner function"""
+        input_key = method.__qualname__ + ":inputs"
+        output_key = method.__qualname__ + ":outputs"
+
+        out = method(self, *args)
+
+        self._redis.rpush(input_key, str(args))
+        self._redis.rpush(output_key, str(out))
+
+        return out
+
+    return inner
+
+
 class Cache():
     """Cache class."""
 
@@ -26,6 +45,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @call_history
     @count_calls
     def store(self, data: Union[int, str, bytes, float]) -> str:
         """Store value into redis database."""
