@@ -8,18 +8,17 @@ import requests
 
 def cache_req(method: Callable) -> Callable:
     """caching decorator."""
+    r = redis.Redis()
+    r.flushdb()
 
     @wraps(method)
     def inner(*args: str):
         """inner function"""
-        r = redis.Redis()
-        r.flushdb()
-
         res = method(*args)
         url = args[0]
         key = "count:{}".format(url)
 
-        r.incr(key, res)
+        r.incr(key)
         r.expire(key, 10)
 
         return res
@@ -32,9 +31,4 @@ def get_page(url: str) -> str:
     in the key "count:{url}" and cache the result with an expiration time
     of 10 seconds. """
     r = requests.get(url)
-    try:
-        r.raise_for_status()
-    except requests.HTTPError:
-        pass
-
     return r.text
