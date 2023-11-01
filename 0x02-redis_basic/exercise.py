@@ -75,7 +75,7 @@ class Cache():
 
     @call_history
     @count_calls
-    def store(self, data: Union[int, str, bytes, float]) -> str:
+    def store(self, data: Union[str, bytes, int, float]) -> str:
         """Store value into redis database."""
         key: str = str(uuid.uuid4())
         self._redis.set(key, data)
@@ -84,7 +84,7 @@ class Cache():
 
     def get(
         self, key: str, fn: Optional[Callable] = None
-    ) -> Union[bytes, int, str, float, None]:
+    ) -> Union[str, bytes, int, float, None]:
         """Get and convert value from redis db."""
         v = self._redis.get(key)
         if fn is not None:
