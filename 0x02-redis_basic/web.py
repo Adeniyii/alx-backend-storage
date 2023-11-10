@@ -18,13 +18,13 @@ def cache_req(method: Callable) -> Callable:
         """The wrapper function for caching the output."""
         count_key = "count:{}".format(url)
         result_key = "result:{}".format(url)
-        redis_store.incr(count_key)
         redis_store.expire(count_key, 10)
         result = redis_store.get(result_key)
         if result:
             return result.decode("utf-8")
         result = method(url)
         redis_store.set(result_key, result, ex=10)
+        redis_store.incr(count_key)
         return result
 
     return inner
