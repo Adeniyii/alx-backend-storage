@@ -16,13 +16,15 @@ def cache_req(method: Callable) -> Callable:
     @wraps(method)
     def inner(url) -> str:
         """The wrapper function for caching the output."""
-        redis_store.incr(f'count:{url}')
-        result = redis_store.get(f'result:{url}')
+        count_key = "count:{}".format(url)
+        result_key = "result:{}".format(url)
+        redis_store.incr(count_key)
+        redis_store.expire(count_key, 10)
+        result = redis_store.get(result_key)
         if result:
-            return result.decode('utf-8')
+            return result.decode("utf-8")
         result = method(url)
-        redis_store.set(f'count:{url}', 0)
-        redis_store.setex(f'result:{url}', 10, result)
+        redis_store.set(result_key, result, ex=10)
         return result
 
     return inner
